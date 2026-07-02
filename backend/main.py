@@ -88,7 +88,7 @@ app.include_router(images.router, prefix="/api/images", tags=["images"])
 # ---------- AI 速读分析 API ----------
 class ChatRequest(BaseModel):
     messages: list
-    model: str = "deepseek-v4"
+    model: str = "deepseek-v4-pro"
     api_key: str = None  # 前端传入的 API Key
     base_url: str = None  # 前端传入的 Base URL
 

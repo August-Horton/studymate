@@ -75,7 +75,7 @@ export const PROVIDERS = {
 // 默认配置
 const DEFAULT_CONFIG = {
   provider: 'deepseek',
-  model: 'deepseek-v4',
+  model: 'deepseek-v4-pro',
   apiKey: '',
   baseUrl: '',
   customModels: [] // 自定义模型列表

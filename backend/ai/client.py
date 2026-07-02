@@ -9,7 +9,7 @@ logger = logging.getLogger("StudyMate-Audit-AI")
 # 默认配置（必须由前端传入 API Key，或通过环境变量配置）
 DEFAULT_API_KEY = os.getenv("AI_API_KEY", "")
 DEFAULT_BASE_URL = os.getenv("AI_BASE_URL", "https://api.deepseek.com/v1")
-DEFAULT_MODEL = os.getenv("AI_MODEL", "deepseek-v4")
+DEFAULT_MODEL = os.getenv("AI_MODEL", "deepseek-v4-pro")
 
 
 def create_client(api_key=None, base_url=None):
