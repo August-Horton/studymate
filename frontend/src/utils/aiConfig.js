@@ -12,7 +12,8 @@ export const PROVIDERS = {
     icon: '🐋',
     baseUrl: 'https://api.deepseek.com/v1',
     models: [
-      { id: 'deepseek-v4', name: 'DeepSeek-V4', desc: '最新旗舰模型，更强更智能' },
+      { id: 'deepseek-v4-pro', name: 'DeepSeek-V4 Pro', desc: '旗舰模型，最强推理能力' },
+      { id: 'deepseek-v4-flash', name: 'DeepSeek-V4 Flash', desc: '极速响应，性价比首选' },
       { id: 'deepseek-chat', name: 'DeepSeek-V3', desc: '经典通用对话模型' },
       { id: 'deepseek-reasoner', name: 'DeepSeek-R1', desc: '深度推理模型' }
     ],
@@ -81,6 +82,11 @@ const DEFAULT_CONFIG = {
   customModels: [] // 自定义模型列表
 }
 
+// 旧模型名到新模型名的自动迁移映射
+const MODEL_MIGRATION_MAP = {
+  'deepseek-v4': 'deepseek-v4-pro'
+}
+
 /**
  * 读取 AI 配置
  */
@@ -88,7 +94,17 @@ export function getAIConfig() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (!stored) return { ...DEFAULT_CONFIG }
-    return { ...DEFAULT_CONFIG, ...JSON.parse(stored) }
+    const parsed = JSON.parse(stored)
+    // 自动迁移：旧模型名升级为新模型名
+    let migrated = false
+    if (MODEL_MIGRATION_MAP[parsed.model]) {
+      parsed.model = MODEL_MIGRATION_MAP[parsed.model]
+      migrated = true
+    }
+    if (migrated) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed))
+    }
+    return { ...DEFAULT_CONFIG, ...parsed }
   } catch (e) {
     console.error('读取 AI 配置失败', e)
     return { ...DEFAULT_CONFIG }
