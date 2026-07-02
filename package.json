@@ -1,0 +1,60 @@
+{
+  "name": "studymate",
+  "version": "1.0.0",
+  "description": "StudyMate 智学助手 - 基于 AI 的智能学习助手",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently \"cd backend && python main.py\" \"cd frontend && npm run dev\"",
+    "build": "cd frontend && npm run build",
+    "electron:dev": "electron .",
+    "electron:build": "electron-builder",
+    "electron:build:win": "electron-builder --win",
+    "backend:build": "pyinstaller backend.spec"
+  },
+  "keywords": [
+    "studymate",
+    "education",
+    "ai",
+    "notes"
+  ],
+  "author": "StudyMate Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "electron": "^29.3.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.studymate.app",
+    "productName": "StudyMate 智学助手",
+    "directories": {
+      "output": "release-final-v2"
+    },
+    "files": [
+      "electron/**/*",
+      "frontend/dist/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "dist/main.exe",
+        "to": "backend/main.exe"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": ["x64"]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "StudyMate 智学助手"
+    }
+  }
+}
