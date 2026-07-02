@@ -414,7 +414,7 @@ onMounted(fetchCourses)
 <style scoped>
 .courses-view {
   padding: 32px 40px;
-  background-color: #f8fafc;
+  background-color: var(--bg-primary, #f5f5f5);
   min-height: calc(100vh - 60px);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-y: auto;
@@ -436,13 +436,13 @@ onMounted(fetchCourses)
 .page-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0;
 }
 
 .course-count {
   font-size: 14px;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-weight: 500;
 }
 
@@ -490,13 +490,13 @@ onMounted(fetchCourses)
 .empty-text {
   font-size: 20px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0 0 12px 0;
 }
 
 .empty-hint {
   font-size: 14px;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   margin: 0;
 }
 
@@ -507,11 +507,11 @@ onMounted(fetchCourses)
 }
 
 .course-card {
-  background: white;
+  background: var(--card-bg, #ffffff);
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--card-border, #f1f5f9);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -521,7 +521,7 @@ onMounted(fetchCourses)
 .course-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
-  border-color: #e2e8f0;
+  border-color: var(--border-color, #e2e8f0);
 }
 
 .card-cover {
@@ -573,10 +573,10 @@ onMounted(fetchCourses)
   position: absolute;
   top: 32px;
   right: 0;
-  background: white;
+  background: var(--card-bg, #ffffff);
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   width: 140px;
   z-index: 100;
   overflow: hidden;
@@ -593,7 +593,7 @@ onMounted(fetchCourses)
   padding: 12px 16px;
   font-size: 13px;
   font-weight: 500;
-  color: #334155;
+  color: var(--text-primary, #334155);
   cursor: pointer;
   transition: background 0.2s;
   display: flex;
@@ -601,7 +601,7 @@ onMounted(fetchCourses)
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--bg-secondary, #f8fafc);
 }
 
 .dropdown-item.text-danger {
@@ -614,7 +614,7 @@ onMounted(fetchCourses)
 
 .dropdown-divider {
   height: 1px;
-  background: #f1f5f9;
+  background: var(--border-color, #e5e7eb);
 }
 
 .card-body {
@@ -627,7 +627,7 @@ onMounted(fetchCourses)
 .course-name {
   font-size: 18px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0 0 6px 0;
   white-space: nowrap;
   overflow: hidden;
@@ -636,7 +636,7 @@ onMounted(fetchCourses)
 
 .course-desc {
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0 0 16px 0;
   line-height: 1.5;
   display: -webkit-box;
@@ -653,8 +653,8 @@ onMounted(fetchCourses)
 }
 
 .tag {
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--bg-secondary, #f1f5f9);
+  color: var(--text-secondary, #475569);
   padding: 4px 8px;
   border-radius: 6px;
   font-size: 12px;
@@ -664,8 +664,8 @@ onMounted(fetchCourses)
 }
 
 .tag:hover {
-  background: #e0e7ff;
-  color: #4F46E5;
+  background: var(--accent-light, #eef2ff);
+  color: var(--accent-color, #4f46e5);
 }
 
 .progress-section {
@@ -681,7 +681,7 @@ onMounted(fetchCourses)
 
 .progress-text {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-weight: 500;
 }
 
@@ -692,7 +692,7 @@ onMounted(fetchCourses)
 
 .progress-bar-bg {
   height: 6px;
-  background: #e2e8f0;
+  background: var(--border-color, #e2e8f0);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -727,15 +727,15 @@ onMounted(fetchCourses)
 }
 
 .original-text {
-  background: #f3f4f6;
+  background: var(--bg-secondary, #f3f4f6);
   padding: 16px;
   border-radius: 12px;
   white-space: pre-wrap;
   line-height: 1.8;
-  color: #666;
+  color: var(--text-secondary, #666666);
 }
 
 .custom-scroll::-webkit-scrollbar { width: 8px; }
 .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-.custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.custom-scroll::-webkit-scrollbar-thumb { background: var(--border-color, #cbd5e1); border-radius: 4px; }
 </style>

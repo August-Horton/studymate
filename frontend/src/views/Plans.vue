@@ -92,7 +92,7 @@
             />
             
             <div class="heatmap-container">
-              <span style="font-size: 12px; color: #6B7280; margin-bottom: 8px; display: block;">打卡热力图 (近{{ heatmapData.length }}天)</span>
+              <span style="font-size: 12px; color: var(--text-secondary, #6B7280); margin-bottom: 8px; display: block;">打卡热力图 (近{{ heatmapData.length }}天)</span>
               <div class="heatmap-grid">
                 <div 
                   v-for="(day, index) in heatmapData" 
@@ -115,7 +115,7 @@
         <div v-for="(task, date) in savedPlan.daily_plan" :key="date" class="plan-item" @click="openDailyDetail(date, typeof task === 'string' ? task : task)" style="cursor: pointer; position: relative;">
           <div class="plan-date">{{ formatDate(date) }}</div>
           <div class="plan-task">{{ typeof task === 'string' ? task : task }}</div>
-          <van-icon name="arrow" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #ccc;" />
+          <van-icon name="arrow" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary, #cccccc);" />
         </div>
       </div>
     </div>
@@ -124,7 +124,7 @@
       <div style="padding: 20px;">
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; margin-top: 5px;">
-          <h3 style="margin: 0; color: #4F46E5; font-size: 18px;">{{ selectedDate }} 执行清单</h3>
+          <h3 style="margin: 0; color: var(--accent-color, #4f46e5); font-size: 18px;">{{ selectedDate }} 执行清单</h3>
           <van-button 
             icon="replay" 
             size="small" 
@@ -139,7 +139,7 @@
           </van-button>
         </div>
 
-        <p style="color: #666; font-size: 14px; padding-bottom: 12px; border-bottom: 1px solid #eee; margin-top: 0;">
+        <p style="color: var(--text-secondary, #666666); font-size: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color, #eeeeee); margin-top: 0;">
           <strong>今日主线：</strong>{{ selectedTask }}
         </p>
         
@@ -155,7 +155,7 @@
                    <span 
                     :class="{ 'task-done-text': task.done }"
                     :style="{ 
-                      color: task.isReview ? '#10B981' : '#333', 
+                      color: task.isReview ? 'var(--success-color, #10B981)' : 'var(--text-primary, #333333)', 
                       fontWeight: task.isReview ? '600' : 'normal' 
                     }"
                   >
@@ -220,13 +220,13 @@
       </div>
 
       <van-icon name="checked" color="#10B981" size="60" />
-      <h2 style="color: #333; margin: 15px 0 5px; font-size: 18px;">任务全歼！完美收官！</h2>
-      <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+      <h2 style="color: var(--text-primary, #333333); margin: 15px 0 5px; font-size: 18px;">任务全歼！完美收官！</h2>
+      <p style="color: var(--text-secondary, #666666); font-size: 14px; margin-bottom: 20px;">
         {{ selectedDate }} · {{ selectedCourseName }}
       </p>
       
-      <div style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: left;">
-        <p style="margin: 0; font-size: 13px; color: #4b5563; line-height: 1.6;">
+      <div style="background: var(--card-bg, #ffffff); border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: left;">
+        <p style="margin: 0; font-size: 13px; color: var(--text-secondary, #4b5563); line-height: 1.6;">
           "{{ currentDailyQuote }}"
         </p>
       </div>
@@ -269,7 +269,7 @@
           autosize 
           type="textarea" 
           placeholder="例：任务量减半、侧重背单词、增加实战演练..." 
-          style="background-color: #f3f4f6; border-radius: 8px; padding: 10px;" 
+          style="background-color: var(--bg-primary, #f5f5f5); border-radius: 8px; padding: 10px;" 
         />
       </div>
     </van-dialog>
@@ -286,7 +286,7 @@
           {{ formattedTime }}
         </div>
         
-        <p style="color: #6b7280; font-size: 13px; margin-bottom: 60px; letter-spacing: 1px;">
+        <p style="color: var(--text-secondary, #6b7280); font-size: 13px; margin-bottom: 60px; letter-spacing: 1px;">
           💡 保持专注，请放下手机
         </p>
 
@@ -323,7 +323,7 @@
       @confirm="confirmStartFocus"
     >
       <div style="padding: 30px 20px; text-align: center;">
-        <p style="margin-top: 0; margin-bottom: 25px; color: #666; font-size: 14px;">
+        <p style="margin-top: 0; margin-bottom: 25px; color: var(--text-secondary, #666666); font-size: 14px;">
           系统已根据任务自动识别建议时长<br>你可以手动调整：
         </p>
         <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
@@ -335,7 +335,7 @@
             button-size="36px" 
             input-width="70px" 
           />
-          <span style="font-weight: bold; color: #333;">分钟</span>
+          <span style="font-weight: bold; color: var(--text-primary, #333333);">分钟</span>
         </div>
       </div>
     </van-dialog>
@@ -1398,9 +1398,9 @@ onMounted(fetchCourses)
 .advice-content {
   padding: 16px;
   font-size: 14px;
-  color: #4b5563;
+  color: var(--text-secondary, #4b5563);
   line-height: 1.6;
-  background-color: #f8fafc;
+  background-color: var(--bg-secondary, #f8fafc);
   border-left: 4px solid var(--van-primary-color);
 }
 
@@ -1409,7 +1409,7 @@ onMounted(fetchCourses)
 }
 
 .plan-item {
-  background: white;
+  background: var(--card-bg, #ffffff);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
@@ -1446,7 +1446,7 @@ onMounted(fetchCourses)
 
 .question-title {
   font-weight: bold;
-  color: #323233;
+  color: var(--text-primary, #323233);
 }
 
 .options-group {
@@ -1470,7 +1470,7 @@ onMounted(fetchCourses)
 
 .task-done-text {
   text-decoration: line-through;
-  color: #9ca3af;
+  color: var(--text-tertiary, #9ca3af);
   transition: all 0.3s ease;
 }
 
@@ -1487,7 +1487,7 @@ onMounted(fetchCourses)
 }
 .dashboard-content {
   padding: 16px;
-  background: #ffffff;
+  background: var(--card-bg, #ffffff);
 }
 .dashboard-header {
   display: flex;
@@ -1497,12 +1497,12 @@ onMounted(fetchCourses)
 }
 .dashboard-title {
   font-weight: bold;
-  color: #111827;
+  color: var(--text-primary, #111827);
   font-size: 15px;
 }
 .dashboard-stats {
   font-size: 13px;
-  color: #4F46E5;
+  color: var(--accent-color, #4f46e5);
   font-weight: 600;
 }
 .heatmap-container {
@@ -1517,7 +1517,7 @@ onMounted(fetchCourses)
   width: 14px;
   height: 14px;
   border-radius: 3px;
-  background-color: #ebedf0;
+  background-color: var(--border-color, #ebedf0);
   transition: background-color 0.3s ease;
 }
 
@@ -1545,13 +1545,13 @@ onMounted(fetchCourses)
   padding: 30px;
   box-sizing: border-box;
   /* 优雅的紫蓝色渐变底图 */
-  background: linear-gradient(160deg, #fdfbfb 0%, #ebedee 100%), 
+  background: linear-gradient(160deg, var(--card-bg, #fdfbfb) 0%, var(--bg-secondary, #ebedee) 100%), 
               radial-gradient(at 10% 20%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
               radial-gradient(at 80% 80%, rgba(129, 140, 248, 0.05) 0px, transparent 50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color, #e5e7eb);
 }
 
 /* 3. 各模块的精致排版 */
@@ -1561,17 +1561,17 @@ onMounted(fetchCourses)
   justify-content: space-between;
   align-items: center;
   margin-bottom: 40px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color, #eeeeee);
   padding-bottom: 10px;
 }
 .poster-app-name {
   font-weight: bold;
-  color: #4F46E5;
+  color: var(--accent-color, #4f46e5);
   font-size: 16px;
   letter-spacing: 1px;
 }
 .poster-date {
-  color: #6B7280;
+  color: var(--text-secondary, #6B7280);
   font-size: 12px;
 }
 .poster-main-icon {
@@ -1581,13 +1581,13 @@ onMounted(fetchCourses)
 .poster-title {
   margin: 0 0 10px 0;
   font-size: 24px;
-  color: #111827;
+  color: var(--text-primary, #111827);
   font-weight: 800;
   letter-spacing: -0.5px;
 }
 .poster-subtitle {
   margin: 0 0 40px 0;
-  color: #6B7280;
+  color: var(--text-secondary, #6B7280);
   font-size: 13px;
   text-align: center;
   line-height: 1.5;
@@ -1598,7 +1598,7 @@ onMounted(fetchCourses)
 .poster-quote-block {
   width: 100%;
   flex: 1;
-  background-color: #ffffff;
+  background-color: var(--card-bg, #ffffff);
   border-radius: 16px;
   padding: 25px;
   box-sizing: border-box;
@@ -1607,7 +1607,7 @@ onMounted(fetchCourses)
   flex-direction: column;
   justify-content: center;
   position: relative;
-  border: 1px solid #f3f4f6;
+  border: 1px solid var(--card-border, #f3f4f6);
 }
 /* 加上左右引号做装饰 */
 .poster-quote-block::before {
@@ -1622,7 +1622,7 @@ onMounted(fetchCourses)
 .poster-quote-content {
   margin: 0 0 15px 0;
   font-size: 14px;
-  color: #4b5563;
+  color: var(--text-secondary, #4b5563);
   line-height: 1.7;
   text-align: left;
   position: relative;
@@ -1632,7 +1632,7 @@ onMounted(fetchCourses)
   width: 100%;
   text-align: right;
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-tertiary, #9ca3af);
   font-style: italic;
 }
 
@@ -1640,7 +1640,7 @@ onMounted(fetchCourses)
 .poster-footer {
   width: 100%;
   margin-top: 30px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-color, #eeeeee);
   padding-top: 15px;
   display: flex;
   flex-direction: column;
@@ -1648,11 +1648,11 @@ onMounted(fetchCourses)
   gap: 5px;
 }
 .poster-hint {
-  color: #818CF8;
+  color: var(--accent-light-text, #818CF8);
   font-size: 11px;
 }
 .poster-brand {
-  color: #9ca3af;
+  color: var(--text-tertiary, #9ca3af);
   font-size: 10px;
 }
 
@@ -1672,14 +1672,14 @@ onMounted(fetchCourses)
   width: 90%;
 }
 .focus-title {
-  color: #9ca3af;
+  color: var(--text-tertiary, #9ca3af);
   font-size: 16px;
   letter-spacing: 2px;
   font-weight: normal;
   margin-bottom: 20px;
 }
 .focus-task-name {
-  color: #ffffff;
+  color: var(--text-on-dark, #ffffff);
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 50px;
@@ -1690,13 +1690,13 @@ onMounted(fetchCourses)
   font-size: 80px;
   font-weight: 800;
   font-family: 'Courier New', Courier, monospace;
-  color: #818CF8;
+  color: var(--accent-light-text, #818CF8);
   text-shadow: 0 0 20px rgba(79, 70, 229, 0.6);
   margin-bottom: 30px;
   transition: all 0.3s ease;
 }
 .clock-paused {
-  color: #6b7280;
+  color: var(--text-secondary, #6b7280);
   text-shadow: none;
 }
 .focus-hint {

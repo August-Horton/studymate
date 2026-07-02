@@ -284,7 +284,19 @@
 import { ref, computed, nextTick, watch, onMounted } from 'vue'
 import * as pdfjsLib from 'pdfjs-dist'
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.js?url'
-import { showSuccessToast, showFailToast } from 'vant' // 引入 Vant 提示，替代 alert
+import { showSuccessToast, showFailToast } from 'vant'
+import api from '../api'
+import { getAIConfig, getProvider } from '../utils/aiConfig'
+
+const getAIConfigParams = () => {
+  const aiConfig = getAIConfig()
+  const provider = getProvider(aiConfig.provider)
+  return {
+    model: aiConfig.model,
+    api_key: aiConfig.apiKey,
+    base_url: aiConfig.provider === 'custom' ? aiConfig.baseUrl : provider.baseUrl
+  }
+}
 
 const props = defineProps({
   pdfPath: { type: String, default: '' },
@@ -344,79 +356,24 @@ const generateAiReport = async (mode) => {
   
   try {
     let extractedText = ''
-    // 💡 核心修改 1：彻底解除封印，直接读取 PDF 的全部页数！
     const maxPagesToRead = pdfDocInstance.numPages 
     
-    // 进度提示（可选，方便你在控制台看提取进度）
     console.log(`开始提取全文，共 ${maxPagesToRead} 页...`)
 
     for (let i = 1; i <= maxPagesToRead; i++) {
       const page = await pdfDocInstance.getPage(i)
       const textContent = await page.getTextContent()
-      // 将每一页的文本拼接到一起
       extractedText += textContent.items.map(item => item.str).join(' ') + '\n'
     }
 
-    // 💡 核心修改 2：放开字符限制。
-    // 为了防止你上传几百页的书籍直接撑爆 API，这里设置一个 10 万字符的"超级兜底安全线"
     const promptText = extractedText.substring(0, 100000)
     console.log(`提取完毕！正在启动 [${mode === 'review' ? '综述' : '速读'}] 引擎，发送字数:`, promptText.length)
 
-    // ⚠️ 记得填入你的真实 API Key
-    const apiKey = 'sk-be94e114ebb0492b955124ec67eaf2c3' 
-    
-    // 🧠 动态生成 System Prompt
-    const systemPrompt = mode === 'review' 
-      ? `你是一个顶级的学术研究员。请阅读用户提供的完整文献，为其生成一份极具深度的【文献综述报告】。
-必须严格返回一个 JSON 对象，且只能包含以下5个键值对：
-{
-  "研究背景与问题": "阐述该文献致力于解决的具体问题及研究空白",
-  "核心创新点": "该文献在理论、方法或实践上的最大贡献",
-  "研究方法评价": "客观简评其所用方法的合理性与优缺点",
-  "局限性与不足": "指出该研究存在的局限性或未解决的问题",
-  "未来研究方向": "基于此文献，未来可以继续深挖的学术方向"
-}
-请用专业、客观、严谨的学术语言回答，不要输出任何多余的 Markdown 标记。`
-      : `你是一个顶级的文档分析与速读助手。请阅读用户提供的完整文档。
-请你先判断文档的类型，然后为你认为最重要的 4 到 5 个核心维度自定义小标题，并提取对应信息。
-必须严格返回一个 JSON 对象：
-{
-  "文档主旨": "一句话概括核心内容",
-  "[你提取的维度1]": "...",
-  "[你提取的维度2]": "...",
-  "[你提取的维度3]": "..."
-}
-请用简明扼要的中文回答，不要输出任何多余的 Markdown 标记。`
+    const res = await api.post('/ai/analyze-pdf', { text: promptText, mode })
 
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        response_format: { type: 'json_object' }, 
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `请分析以下全部文献内容：\n\n${promptText}` }
-        ]
-      })
-    })
-
-    if (!response.ok) throw new Error(`API 请求失败，状态码: ${response.status}`)
-
-    const data = await response.json()
-    const resultText = data.choices[0].message.content
-
-    try {
-      aiReport.value = JSON.parse(resultText)
-      aiStatus.value = 'done'
-      showSuccessToast(mode === 'review' ? '全文综述生成完毕！' : '全文速读解析完成！')
-    } catch (parseError) {
-      console.error("JSON 解析失败：", resultText)
-      throw new Error('AI 数据格式异常')
-    }
+    aiReport.value = res
+    aiStatus.value = 'done'
+    showSuccessToast(mode === 'review' ? '全文综述生成完毕！' : '全文速读解析完成！')
 
   } catch (error) {
     console.error('AI 请求失败:', error)
@@ -497,37 +454,29 @@ const executeTranslate = async () => {
   currentSelectionRects.value = []
 
   try {
-    const apiKey = 'sk-be94e114ebb0492b955124ec67eaf2c3' 
-    
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          {
-            role: 'system',
-            content: `你是一个专业的学术翻译引擎。
+    const res = await api.post('/ai/chat', {
+      messages: [
+        {
+          role: 'system',
+          content: `你是一个专业的学术翻译引擎。
 规则：
 1. 若输入英文，请翻译为流畅、符合学术规范的中文。
 2. 若输入中文，请翻译为地道、专业的英文。
 3. 直接输出翻译结果，**严禁**输出任何多余的解释、寒暄或拼音。`
-          },
-          {
-            role: 'user',
-            content: text
-          }
-        ]
-      })
+        },
+        {
+          role: 'user',
+          content: text
+        }
+      ],
+      ...getAIConfigParams()
     })
 
-    if (!response.ok) throw new Error('翻译请求失败')
-
-    const data = await response.json()
-    translationResult.value = data.choices[0].message.content
+    if (res && res.content) {
+      translationResult.value = res.content
+    } else {
+      throw new Error('翻译响应异常')
+    }
 
   } catch (error) {
     console.error('翻译出错:', error)

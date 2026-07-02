@@ -38,5 +38,6 @@ DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{db_path}")
 # 打印数据库路径用于调试
 print(f"[DEBUG] Database path: {db_path}")
 
-AI_API_KEY = "sk-be94e114ebb0492b955124ec67eaf2c3"
+# AI 配置（仅通过环境变量设置，前端设置优先）
+AI_API_KEY = os.getenv("AI_API_KEY", "")
 AI_BASE_URL = os.getenv("AI_BASE_URL", "https://api.deepseek.com/v1")

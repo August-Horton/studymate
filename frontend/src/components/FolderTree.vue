@@ -213,32 +213,32 @@ const formatWordCount = (count) => {
   align-items: center;
   padding: 8px 12px;
   cursor: pointer;
-  color: #374151;
+  color: var(--text-primary, #374151);
   border-radius: 6px;
   transition: background 0.2s;
   user-select: none;
 }
 
 .folder-header:hover {
-  background-color: #e5e7eb;
+  background-color: var(--border-color, #e5e7eb);
 }
 
 /* 当笔记悬停在文件夹上方的魔法光晕效果 */
 .folder-header.is-drag-over {
-  background-color: #e0e7ff; /* 靛蓝色浅背景 */
-  border: 1px dashed #4F46E5;
+  background-color: var(--accent-light, #eef2ff);
+  border: 1px dashed var(--accent-color, #4f46e5);
   border-radius: 6px;
 }
 
 .folder-header.is-dragging {
   opacity: 0.5;
-  background-color: #f3f4f6;
+  background-color: var(--bg-primary, #f5f5f5);
 }
 
 .toggle-icon {
   font-size: 12px;
   margin-right: 6px;
-  color: #9ca3af;
+  color: var(--text-tertiary, #9ca3af);
   transition: transform 0.2s;
 }
 
@@ -254,13 +254,13 @@ const formatWordCount = (count) => {
 
 .folder-count {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-tertiary, #9ca3af);
   margin-left: 4px;
 }
 
 .folder-content {
   padding-left: 16px;
-  border-left: 1px solid #e5e7eb;
+  border-left: 1px solid var(--border-color, #e5e7eb);
   margin-left: 16px;
 }
 
@@ -269,16 +269,16 @@ const formatWordCount = (count) => {
   margin: 4px 0;
   border-radius: 6px;
   cursor: pointer;
-  color: #4b5563;
+  color: var(--text-secondary, #4b5563);
   transition: all 0.2s;
 }
 
 .nav-item:hover {
-  background-color: #e5e7eb;
+  background-color: var(--border-color, #e5e7eb);
 }
 
 .nav-item.is-active {
-  background-color: #4F46E5;
+  background-color: var(--accent-color, #4f46e5);
   color: #ffffff;
 }
 
@@ -321,10 +321,10 @@ const formatWordCount = (count) => {
 
 .word-count {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--text-tertiary, #9ca3af);
   font-weight: 500;
   padding: 2px 6px;
-  background: #f3f4f6;
+  background: var(--bg-secondary, #f3f4f6);
   border-radius: 10px;
   white-space: nowrap;
 }

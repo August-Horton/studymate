@@ -239,8 +239,8 @@ defineExpose({ focus, getSelectionStart, getValue, getScrollHeight, getClientHei
   font-family: 'Fira Code', Consolas, Monaco, monospace;
   font-size: 15px;
   line-height: 1.9;
-  color: #374151;
-  background-color: #f9fafb;
+  color: var(--text-primary, #374151);
+  background-color: var(--bg-tertiary, #f9fafb);
   outline: none;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -259,7 +259,7 @@ defineExpose({ focus, getSelectionStart, getValue, getScrollHeight, getClientHei
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: var(--border-color, #d1d5db);
   border-radius: 4px;
 }
 
@@ -276,7 +276,7 @@ defineExpose({ focus, getSelectionStart, getValue, getScrollHeight, getClientHei
 }
 
 .placeholder {
-  color: #9ca3af;
+  color: var(--text-tertiary, #9ca3af);
   pointer-events: none;
 }
 
@@ -285,7 +285,7 @@ defineExpose({ focus, getSelectionStart, getValue, getScrollHeight, getClientHei
   align-items: center;
   gap: 4px;
   padding: 2px 6px;
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  background: linear-gradient(135deg, var(--accent-light, #eff6ff) 0%, var(--accent-light, #dbeafe) 100%);
   border-radius: 6px;
   margin: 0 2px;
   vertical-align: middle;
@@ -306,12 +306,12 @@ defineExpose({ focus, getSelectionStart, getValue, getScrollHeight, getClientHei
 }
 
 .image-alt {
-  color: #2563eb;
+  color: var(--accent-color, #2563eb);
   font-weight: 500;
 }
 
 .image-url {
-  color: #6b7280;
+  color: var(--text-secondary, #6b7280);
   font-size: 13px;
   max-width: 300px;
   overflow: hidden;

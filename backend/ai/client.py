@@ -1,20 +1,24 @@
 from openai import AsyncOpenAI
 import httpx
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("StudyMate-Audit-AI")
 
-# 默认配置（可被前端传入的配置覆盖）
-DEFAULT_API_KEY = "sk-be94e114ebb0492b955124ec67eaf2c3"
-DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
-DEFAULT_MODEL = "deepseek-v4"
+# 默认配置（必须由前端传入 API Key，或通过环境变量配置）
+DEFAULT_API_KEY = os.getenv("AI_API_KEY", "")
+DEFAULT_BASE_URL = os.getenv("AI_BASE_URL", "https://api.deepseek.com/v1")
+DEFAULT_MODEL = os.getenv("AI_MODEL", "deepseek-v4")
 
 
 def create_client(api_key=None, base_url=None):
     """根据传入的配置创建 OpenAI 兼容客户端"""
+    actual_api_key = api_key or DEFAULT_API_KEY
+    if not actual_api_key:
+        raise RuntimeError("未配置 API Key，请在系统设置中配置或设置环境变量 AI_API_KEY")
     return AsyncOpenAI(
-        api_key=api_key or DEFAULT_API_KEY,
+        api_key=actual_api_key,
         base_url=base_url or DEFAULT_BASE_URL,
         timeout=httpx.Timeout(1800.0, connect=10.0)
     )

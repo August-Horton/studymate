@@ -2,37 +2,51 @@
   <div id="app">
     <BackendStatus />
     <van-nav-bar title="StudyMate 智学助手" fixed>
+      <template #left>
+        <div class="brand-tag">
+          <span class="brand-dot"></span>
+          <span class="brand-text">智学</span>
+        </div>
+      </template>
       <template #right>
         <van-icon name="setting-o" size="20" class="settings-btn" @click="showSettings = true" />
       </template>
     </van-nav-bar>
     <div class="content">
-      <van-tabs v-model:active="active" @change="onTabChange" sticky>
-        <van-tab title="笔记管理" to="/notes"></van-tab>
-        <van-tab title="文献管理" to="/literature"></van-tab>
-        <van-tab title="备考计划" to="/plans"></van-tab>
-        <van-tab title="课程管理" to="/courses"></van-tab>
+      <van-tabs v-model:active="active" @change="onTabChange" sticky offset-top="46" :border="false" title-active-color="var(--accent-color)">
+        <van-tab title="📝 笔记管理" to="/notes"></van-tab>
+        <van-tab title="📖 文献管理" to="/literature"></van-tab>
+        <van-tab title="📅 备考计划" to="/plans"></van-tab>
+        <van-tab title="📚 课程管理" to="/courses"></van-tab>
       </van-tabs>
-      <router-view />
+      <div class="page-container">
+        <router-view v-slot="{ Component }">
+          <transition name="page-fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
+      </div>
     </div>
     <SettingsDrawer v-model:show="showSettings" />
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import BackendStatus from './components/BackendStatus.vue'
 import SettingsDrawer from './components/SettingsDrawer.vue'
-import { initTheme } from './utils/theme'
+import { initTheme, getCurrentTheme } from './utils/theme'
 
 const router = useRouter()
 const route = useRoute()
 const active = ref(0)
 const showSettings = ref(false)
+const currentTheme = ref('light')
 
 onMounted(() => {
   initTheme()
+  currentTheme.value = getCurrentTheme()
 })
 
 const routeToIndex = {
@@ -65,31 +79,30 @@ watch(() => route.path, (newPath) => {
   box-sizing: border-box;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 #app {
   min-height: 100vh;
   background-color: var(--bg-primary, #f5f5f5);
-  transition: background-color 0.3s ease;
 }
 
-/* Vant 导航栏主题适配 */
-:root {
-  --van-nav-bar-background: var(--nav-bg, #ffffff);
-  --van-nav-bar-text-color: var(--nav-text, #1f2937);
-  --van-nav-bar-title-text-color: var(--nav-text, #1f2937);
+.brand-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* Vant Tabs 主题适配 */
-:root {
-  --van-tabs-background: var(--bg-secondary, #ffffff);
-  --van-tab-text-color: var(--text-secondary, #4b5563);
-  --van-tab-active-text-color: var(--accent-color, #4f46e5);
-  --van-tabs-bottom-bar-color: var(--accent-color, #4f46e5);
+.brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-color, #4f46e5);
+  box-shadow: 0 0 8px var(--accent-color, #4f46e5);
+}
+
+.brand-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary, #9ca3af);
+  letter-spacing: 1px;
 }
 
 .settings-btn {
@@ -100,15 +113,51 @@ body {
 }
 
 .settings-btn:hover {
-  transform: rotate(45deg);
+  transform: rotate(60deg);
 }
 
 .content {
   padding-top: 46px;
-  padding-bottom: 20px;
+  min-height: calc(100vh - 46px);
 }
 
-.page {
-  padding: 16px;
+.page-container {
+  padding-bottom: 24px;
+}
+
+/* 页面过渡动画 */
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* Vant Tabs 样式覆盖 */
+.van-tabs {
+  background: var(--bg-secondary, #ffffff);
+}
+
+.van-tabs__nav {
+  background: var(--bg-secondary, #ffffff);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.van-tabs__line {
+  background-color: var(--accent-color, #4f46e5) !important;
+  border-radius: 2px;
+  height: 3px !important;
+}
+
+.van-tab--active {
+  font-weight: 600;
 }
 </style>
