@@ -123,7 +123,12 @@
             class="page-wrapper"
             :data-page-num="pageIndex + 1"
           >
+            <div v-if="!page.loaded" class="page-loading-placeholder">
+              <div class="loading-spinner-small"></div>
+              <span>加载第 {{ pageIndex + 1 }} 页...</span>
+            </div>
             <canvas 
+              v-show="page.loaded"
               :ref="el => { if (el) canvasRefs[pageIndex] = el }" 
               class="pdf-canvas"
               :width="page.width"
@@ -516,45 +521,116 @@ const annotationList = computed(() => {
   return result
 })
 
+const renderedPages = ref([])
+const renderedPageNumbers = ref(new Set())
+let observer = null
+
 const loadPdfFromPath = async (path) => {
   try {
     isLoading.value = true
     isPdfLoaded.value = false
-    // 🔄 重置 AI 速读状态，确保新PDF打开时是全新的
     aiReport.value = null
     aiStatus.value = 'idle'
     showAiPanel.value = false
+    renderedPageNumbers.value = new Set()
     
     const loadingTask = pdfjsLib.getDocument(path)
     pdfDocInstance = await loadingTask.promise
     totalPages.value = pdfDocInstance.numPages
     currentPageNum.value = props.initialPage || 1
-    await nextTick()
-    await renderAllPages()
+    
+    await initPagePlaceholders()
+    await renderSinglePage(currentPageNum.value)
+    
     isPdfLoaded.value = true
     isLoading.value = false
+    
+    await nextTick()
+    setupIntersectionObserver()
+    preRenderNeighbors(currentPageNum.value)
   } catch (error) {
     isLoading.value = false
     console.error('PDF 加载失败:', error)
   }
 }
 
-const renderAllPages = async () => {
+const initPagePlaceholders = async () => {
   if (!pdfDocInstance) return
   renderedPages.value = []
-  const pagePromises = []
+  
+  const firstPage = await pdfDocInstance.getPage(1)
+  const viewport = firstPage.getViewport({ scale: scale.value })
+  
   for (let i = 1; i <= totalPages.value; i++) {
-    pagePromises.push(renderSinglePage(i))
+    renderedPages.value.push({ 
+      num: i, 
+      width: viewport.width, 
+      height: viewport.height,
+      loaded: i === currentPageNum.value
+    })
   }
-  await Promise.all(pagePromises)
+}
+
+const setupIntersectionObserver = () => {
+  if (observer) {
+    observer.disconnect()
+  }
+  
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const pageNum = parseInt(entry.target.dataset.pageNum)
+          if (pageNum && !renderedPageNumbers.value.has(pageNum)) {
+            renderSinglePage(pageNum)
+            preRenderNeighbors(pageNum)
+          }
+        }
+      })
+    },
+    {
+      root: document.querySelector('.pdf-render-container'),
+      rootMargin: '200px',
+      threshold: 0.1
+    }
+  )
+  
+  document.querySelectorAll('.page-wrapper').forEach((el) => {
+    observer.observe(el)
+  })
+}
+
+const preRenderNeighbors = (pageNum) => {
+  const neighbors = [pageNum - 1, pageNum + 1]
+  neighbors.forEach((num) => {
+    if (num >= 1 && num <= totalPages.value && !renderedPageNumbers.value.has(num)) {
+      setTimeout(() => renderSinglePage(num), 100)
+    }
+  })
+}
+
+const renderAllPages = async () => {
+  if (!pdfDocInstance) return
+  for (let i = 1; i <= totalPages.value; i++) {
+    if (!renderedPageNumbers.value.has(i)) {
+      await renderSinglePage(i)
+    }
+  }
 }
 
 const renderSinglePage = async (num) => {
+  if (renderedPageNumbers.value.has(num)) return
+  
   try {
     const page = await pdfDocInstance.getPage(num)
     const viewport = page.getViewport({ scale: scale.value })
-    const pageInfo = { num, width: viewport.width, height: viewport.height }
-    renderedPages.value.push(pageInfo)
+    
+    if (renderedPages.value[num - 1]) {
+      renderedPages.value[num - 1].width = viewport.width
+      renderedPages.value[num - 1].height = viewport.height
+      renderedPages.value[num - 1].loaded = true
+    }
+    
     await nextTick()
     
     const canvas = canvasRefs.value[num - 1]
@@ -572,6 +648,8 @@ const renderSinglePage = async (num) => {
         await pdfjsLib.renderTextLayer({ textContentSource: textContent, container: textLayerDiv, viewport, textDivs: [] }).promise
       } catch (e) {}
     }
+    
+    renderedPageNumbers.value.add(num)
   } catch (err) {
     console.error(`渲染页面 ${num} 失败:`, err)
   }
@@ -605,14 +683,14 @@ const scrollToPage = (pageNum) => {
 const zoomIn = () => {
   if (scale.value < 3) {
     scale.value = Math.round((scale.value + 0.1) * 10) / 10
-    renderAllPages()
+    reRenderLoadedPages()
   }
 }
 
 const zoomOut = () => {
   if (scale.value > 0.5) {
     scale.value = Math.round((scale.value - 0.1) * 10) / 10
-    renderAllPages()
+    reRenderLoadedPages()
   }
 }
 
@@ -624,8 +702,17 @@ const fitToWidth = () => {
       const viewport = page.getViewport({ scale: 1 })
       const newScale = containerWidth / viewport.width
       scale.value = Math.round(newScale * 10) / 10
-      renderAllPages()
+      reRenderLoadedPages()
     })
+  }
+}
+
+const reRenderLoadedPages = async () => {
+  renderedPageNumbers.value = new Set()
+  for (let i = 1; i <= totalPages.value; i++) {
+    if (renderedPages.value[i - 1] && renderedPages.value[i - 1].loaded) {
+      await renderSinglePage(i)
+    }
   }
 }
 
@@ -906,6 +993,22 @@ watch(() => props.pdfPath, (newPath) => {
 .pages-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
 .page-wrapper { position: relative; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08); border-radius: 8px; overflow: hidden; background: white; }
 .pdf-canvas { display: block; background: white; }
+.page-loading-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  z-index: 40;
+  color: #94a3b8;
+  font-size: 13px;
+  gap: 8px;
+}
 .page-highlight-layer { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 50; }
 .page-text-layer { position: absolute; left: 0; top: 0; overflow: hidden; opacity: 1; line-height: 1.0; z-index: 100; pointer-events: auto; user-select: text; }
 :deep(.page-text-layer > span), :deep(.page-text-layer br) { color: transparent !important; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; pointer-events: auto; user-select: text; }
