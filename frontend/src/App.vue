@@ -7,13 +7,15 @@
       </template>
     </van-nav-bar>
     <div class="content">
-      <van-tabs v-model:active="active" @change="onTabChange" sticky>
+      <van-tabs v-model:active="active" @change="onTabChange">
         <van-tab title="笔记管理" to="/notes"></van-tab>
         <van-tab title="文献管理" to="/literature"></van-tab>
         <van-tab title="备考计划" to="/plans"></van-tab>
         <van-tab title="课程管理" to="/courses"></van-tab>
       </van-tabs>
-      <router-view />
+      <div class="page-container">
+        <router-view />
+      </div>
     </div>
     <SettingsDrawer v-model:show="showSettings" />
   </div>
@@ -72,7 +74,8 @@ body {
 }
 
 #app {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background-color: var(--bg-primary, #f5f5f5);
   transition: background-color 0.3s ease;
 }
@@ -104,8 +107,20 @@ body {
 }
 
 .content {
-  padding-top: 46px;
-  padding-bottom: 20px;
+  height: calc(100vh - 46px);
+  margin-top: 46px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.content .van-tabs {
+  flex-shrink: 0;
+}
+
+.page-container {
+  flex: 1;
+  overflow: hidden;
 }
 
 .page {

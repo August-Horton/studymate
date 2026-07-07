@@ -415,7 +415,7 @@ onMounted(fetchCourses)
 .courses-view {
   padding: 32px 40px;
   background-color: #f8fafc;
-  min-height: calc(100vh - 60px);
+  height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-y: auto;
 }

@@ -3399,7 +3399,7 @@ onUnmounted(() => {
 /* ====== 🧠 Obsidian 工作区布局 ====== */
 .obsidian-workspace {
   display: flex;
-  height: 100vh;
+  height: 100%;
   background-color: #f9fafb;
   overflow: hidden;
 }
