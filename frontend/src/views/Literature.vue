@@ -165,6 +165,7 @@ defineOptions({ name: 'LiteratureView' })
 
 const STORAGE_KEY = 'studymate_literature_list'
 const CATEGORIES_KEY = 'studymate_categories'
+const ACTIVE_DOC_KEY = 'studymate_active_doc'
 
 const globalFileInput = ref(null)
 const literatureList = ref([])
@@ -387,6 +388,7 @@ const handleGlobalFileUpload = (e) => {
     literatureList.value.push(newDoc)
     saveLiteratureList()
     currentActiveDoc.value = newDoc
+    saveActiveDoc(newDoc)
   }
   reader.readAsDataURL(file)
   e.target.value = ''
@@ -394,6 +396,25 @@ const handleGlobalFileUpload = (e) => {
 
 const openDocument = (doc) => {
   currentActiveDoc.value = doc
+  saveActiveDoc(doc)
+}
+
+const saveActiveDoc = (doc) => {
+  if (doc && doc.id) {
+    localStorage.setItem(ACTIVE_DOC_KEY, doc.id)
+  } else {
+    localStorage.removeItem(ACTIVE_DOC_KEY)
+  }
+}
+
+const loadActiveDoc = () => {
+  const savedId = localStorage.getItem(ACTIVE_DOC_KEY)
+  if (savedId) {
+    const doc = literatureList.value.find(d => d.id === savedId)
+    if (doc) {
+      currentActiveDoc.value = doc
+    }
+  }
 }
 
 const downloadDocument = (doc) => {
@@ -413,6 +434,7 @@ const deleteDocument = (doc) => {
       literatureList.value.splice(index, 1)
       if (currentActiveDoc.value && currentActiveDoc.value.id === doc.id) {
         currentActiveDoc.value = null
+        saveActiveDoc(null)
       }
       saveLiteratureList()
     }
@@ -446,6 +468,7 @@ const handleDropOnCategory = (categoryId) => {
 onMounted(() => {
   loadLiteratureList()
   loadCategories()
+  loadActiveDoc()
 })
 </script>
 
