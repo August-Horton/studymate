@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import init_db
-from routers import notes, papers, plans, review, courses, images
+from routers import notes, papers, plans, review, courses, images, literature
 from ai.client import chat_completion
 from pydantic import BaseModel
 from datetime import date, timedelta
@@ -84,6 +84,7 @@ app.include_router(review.router, prefix="/api/review", tags=["review"])
 app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
 app.include_router(plans.router, prefix="/api/plans", tags=["plans"])
 app.include_router(images.router, prefix="/api/images", tags=["images"])
+app.include_router(literature.router, prefix="/api/literature", tags=["literature"])
 
 # ---------- AI 速读分析 API ----------
 class ChatRequest(BaseModel):

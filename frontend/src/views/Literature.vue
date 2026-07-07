@@ -157,13 +157,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import PdfReader from '@/components/PdfReader.vue'
 import CategoryItem from '@/components/CategoryItem.vue'
+import api from '../api'
 
 defineOptions({ name: 'LiteratureView' })
 
-const STORAGE_KEY = 'studymate_literature_list'
 const CATEGORIES_KEY = 'studymate_categories'
 const ACTIVE_DOC_KEY = 'studymate_active_doc'
 
@@ -213,53 +213,22 @@ const findCategoryById = (id, categoryList = categories.value) => {
   return null
 }
 
-const loadLiteratureList = () => {
+const loadLiteratureList = async () => {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      const savedList = JSON.parse(saved)
-      if (Array.isArray(savedList)) {
-        literatureList.value = savedList.map(item => {
-          if (item && item.data) {
-            try {
-              const byteString = atob(item.data.split(',')[1])
-              const mimeType = item.data.split(',')[0].split(':')[1].split(';')[0]
-              const ab = new ArrayBuffer(byteString.length)
-              const ia = new Uint8Array(ab)
-              for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i)
-              }
-              const blob = new Blob([ab], { type: mimeType })
-              return {
-                ...item,
-                url: URL.createObjectURL(blob)
-              }
-            } catch (e) {
-              return item
-            }
-          }
-          return item
-        }).filter(Boolean)
-      } else {
-        literatureList.value = []
-      }
+    const res = await api.get('/literature/list')
+    if (res.success && res.data) {
+      literatureList.value = res.data.map(item => ({
+        id: item.id,
+        name: item.name,
+        filename: item.filename,
+        url: item.url,
+        categoryId: item.category_id || null
+      }))
     }
   } catch (e) {
     console.error('加载文献列表失败:', e)
     literatureList.value = []
   }
-}
-
-const saveLiteratureList = () => {
-  const listToSave = literatureList.value.map(item => {
-    return {
-      id: item.id,
-      name: item.name,
-      data: item.data,
-      categoryId: item.categoryId
-    }
-  })
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(listToSave))
 }
 
 const loadCategories = () => {
@@ -317,15 +286,18 @@ const addCategory = () => {
 const deleteCategory = (categoryId) => {
   if (!confirm('确定要删除这个文件夹吗？里面的文献将移动到"全部文献"')) return
   
-  const moveToRoot = (catId) => {
-    literatureList.value.forEach(doc => {
+  const moveToRoot = async (catId) => {
+    for (const doc of literatureList.value) {
       if (doc.categoryId === catId) {
         doc.categoryId = null
+        await api.put(`/literature/${doc.id}/category`, { category_id: null })
       }
-    })
+    }
     const category = findCategoryById(catId)
     if (category && category.children) {
-      category.children.forEach(child => moveToRoot(child.id))
+      for (const child of category.children) {
+        await moveToRoot(child.id)
+      }
     }
   }
   
@@ -352,45 +324,42 @@ const deleteCategory = (categoryId) => {
   }
   
   saveCategories()
-  saveLiteratureList()
 }
 
 const triggerUpload = () => {
   globalFileInput.value?.click()
 }
 
-const handleGlobalFileUpload = (e) => {
+const handleGlobalFileUpload = async (e) => {
   const file = e.target.files[0]
   if (!file) return
   
-  const reader = new FileReader()
-  reader.onload = async (e) => {
-    const dataUrl = e.target.result
-    const newDoc = {
-      id: `doc_${Date.now()}`,
-      name: file.name.replace('.pdf', ''),
-      data: dataUrl,
-      categoryId: selectedCategory.value?.id || null
-    }
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('category_id', selectedCategory.value?.id || '')
     
-    if (newDoc.data) {
-      const byteString = atob(newDoc.data.split(',')[1])
-      const mimeType = newDoc.data.split(',')[0].split(':')[1].split(';')[0]
-      const ab = new ArrayBuffer(byteString.length)
-      const ia = new Uint8Array(ab)
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i)
+    const res = await api.post('/literature/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    
+    if (res.success && res.data) {
+      const newDoc = {
+        id: res.data.id,
+        name: res.data.name,
+        filename: res.data.filename,
+        url: res.data.url,
+        categoryId: res.data.category_id || null
       }
-      const blob = new Blob([ab], { type: mimeType })
-      newDoc.url = URL.createObjectURL(blob)
+      literatureList.value.push(newDoc)
+      currentActiveDoc.value = newDoc
+      saveActiveDoc(newDoc)
     }
-    
-    literatureList.value.push(newDoc)
-    saveLiteratureList()
-    currentActiveDoc.value = newDoc
-    saveActiveDoc(newDoc)
+  } catch (e) {
+    console.error('上传失败:', e)
+    alert('上传失败，请检查后端服务是否正常')
   }
-  reader.readAsDataURL(file)
+  
   e.target.value = ''
 }
 
@@ -410,7 +379,7 @@ const saveActiveDoc = (doc) => {
 const loadActiveDoc = () => {
   const savedId = localStorage.getItem(ACTIVE_DOC_KEY)
   if (savedId) {
-    const doc = literatureList.value.find(d => d.id === savedId)
+    const doc = literatureList.value.find(d => String(d.id) === savedId)
     if (doc) {
       currentActiveDoc.value = doc
     }
@@ -418,25 +387,28 @@ const loadActiveDoc = () => {
 }
 
 const downloadDocument = (doc) => {
-  if (doc.data) {
+  if (doc.url) {
     const link = document.createElement('a')
-    link.href = doc.data
+    link.href = doc.url
     link.download = `${doc.name}.pdf`
     link.click()
   }
 }
 
-const deleteDocument = (doc) => {
+const deleteDocument = async (doc) => {
   try {
     if (!doc || !doc.id || !confirm(`确定要删除《${doc.name || '文献'}》吗？`)) return
-    const index = literatureList.value.findIndex(d => d.id === doc.id)
-    if (index !== -1) {
-      literatureList.value.splice(index, 1)
-      if (currentActiveDoc.value && currentActiveDoc.value.id === doc.id) {
-        currentActiveDoc.value = null
-        saveActiveDoc(null)
+    
+    const res = await api.delete(`/literature/${doc.id}`)
+    if (res.success) {
+      const index = literatureList.value.findIndex(d => d.id === doc.id)
+      if (index !== -1) {
+        literatureList.value.splice(index, 1)
+        if (currentActiveDoc.value && currentActiveDoc.value.id === doc.id) {
+          currentActiveDoc.value = null
+          saveActiveDoc(null)
+        }
       }
-      saveLiteratureList()
     }
   } catch (e) {
     console.error('删除文献失败:', e)
@@ -455,13 +427,13 @@ const handleDocDragEnd = () => {
   draggingOverDocId.value = null
 }
 
-const handleDropOnCategory = (categoryId) => {
+const handleDropOnCategory = async (categoryId) => {
   if (!draggingDoc.value) return
   
   const docIndex = literatureList.value.findIndex(d => d.id === draggingDoc.value.id)
   if (docIndex !== -1) {
     literatureList.value[docIndex].categoryId = categoryId
-    saveLiteratureList()
+    await api.put(`/literature/${draggingDoc.value.id}/category`, { category_id: categoryId })
   }
 }
 

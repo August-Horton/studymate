@@ -59,3 +59,13 @@ class NoteLink(Base):
     id = Column(Integer, primary_key=True)
     source_id = Column(Integer, ForeignKey("notes.id"))
     target_title = Column(String)
+
+class Literature(Base):
+    __tablename__ = "literature"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), default=1)
+    name = Column(String)
+    filename = Column(String)
+    filepath = Column(String)
+    category_id = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
