@@ -3853,13 +3853,13 @@ onUnmounted(() => {
 }
 
 .count-menu-item.active .menu-count {
-  color: #6366f1;
+  color: var(--accent-color, #6366f1);
 }
 
 /* 编辑模式下的状态栏 */
 .editor-wrapper + .status-bar {
-  background: #f1f5f9;
-  border-top-color: #cbd5e1;
+  background: var(--bg-tertiary, #f1f5f9);
+  border-top-color: var(--border-color, #cbd5e1);
 }
 
 /* 选中状态栏 */
@@ -3878,13 +3878,13 @@ onUnmounted(() => {
 }
 
 /* Markdown 样式 */
-.markdown-body :deep(h1) { font-size: 22px; font-weight: 700; margin: 20px 0 14px 0; padding-bottom: 6px; border-bottom: 2px solid #e8e8ff; color: #2d3748; }
-.markdown-body :deep(h2) { font-size: 19px; font-weight: 600; margin: 18px 0 12px 0; padding-left: 10px; border-left: 3px solid #4F46E5; color: #1a202c; }
-.markdown-body :deep(h3), .markdown-body :deep(h4), .markdown-body :deep(h5), .markdown-body :deep(h6) { font-size: 16px; font-weight: 600; margin: 14px 0 10px 0; color: #2d3748; }
-.markdown-body :deep(p) { margin: 10px 0; }
-.markdown-body :deep(ul), .markdown-body :deep(ol) { padding-left: 28px; margin: 10px 0; }
-.markdown-body :deep(li) { margin: 6px 0; }
-.markdown-body :deep(strong) { font-weight: 700; color: #1a202c; }
+.markdown-body :deep(h1) { font-size: 22px; font-weight: 700; margin: 20px 0 14px 0; padding-bottom: 6px; border-bottom: 2px solid var(--border-color, #e8e8ff); color: var(--text-primary, #2d3748); }
+.markdown-body :deep(h2) { font-size: 19px; font-weight: 600; margin: 18px 0 12px 0; padding-left: 10px; border-left: 3px solid var(--accent-color, #4F46E5); color: var(--text-primary, #1a202c); }
+.markdown-body :deep(h3), .markdown-body :deep(h4), .markdown-body :deep(h5), .markdown-body :deep(h6) { font-size: 16px; font-weight: 600; margin: 14px 0 10px 0; color: var(--text-primary, #2d3748); }
+.markdown-body :deep(p) { margin: 10px 0; color: var(--text-secondary, #4b5563); }
+.markdown-body :deep(ul), .markdown-body :deep(ol) { padding-left: 28px; margin: 10px 0; color: var(--text-secondary, #4b5563); }
+.markdown-body :deep(li) { margin: 6px 0; color: var(--text-secondary, #4b5563); }
+.markdown-body :deep(strong) { font-weight: 700; color: var(--text-primary, #1a202c); }
 .markdown-body :deep(.katex-display) { margin: 16px 0 !important; overflow-x: auto; }
 
 /* 🔗 双向链接专属外观 */
@@ -4075,14 +4075,14 @@ onUnmounted(() => {
 }
 
 .link-selector-item.create-new {
-  color: #059669;
+  color: var(--van-success-color, #059669);
   background: rgba(5, 150, 105, 0.05);
 }
 
 .link-selector-item.create-new:hover,
 .link-selector-item.create-new.active {
   background: rgba(5, 150, 105, 0.1);
-  color: #047857;
+  color: var(--van-success-color, #047857);
 }
 
 .create-icon {
@@ -4436,14 +4436,14 @@ onUnmounted(() => {
 }
 
 .link-selector-global .link-selector-item.create-new {
-  color: #059669;
+  color: var(--van-success-color, #059669);
   background: rgba(5, 150, 105, 0.05);
 }
 
 .link-selector-global .link-selector-item.create-new:hover,
 .link-selector-global .link-selector-item.create-new.active {
   background: rgba(5, 150, 105, 0.1);
-  color: #047857;
+  color: var(--van-success-color, #047857);
 }
 
 .link-selector-global .create-icon {

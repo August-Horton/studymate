@@ -307,11 +307,11 @@ watch(() => props.content, (newVal) => {
 <style scoped>
 .markdown-body {
   padding: 24px 40px;
-  background: #ffffff;
+  background: var(--bg-secondary, #ffffff);
   border-radius: 8px;
   line-height: 1.8;
   font-size: 16px;
-  color: #374151;
+  color: var(--text-secondary, #374151);
   min-height: 100%;
   width: 100%;
   box-sizing: border-box;
@@ -323,36 +323,35 @@ watch(() => props.content, (newVal) => {
   font-weight: 700;
   margin: 20px 0 14px 0;
   padding-bottom: 6px;
-  border-bottom: 2px solid #e8e8ff;
-  color: #2d3748;
+  border-bottom: 2px solid var(--border-color, #e8e8ff);
+  color: var(--text-primary, #2d3748);
 }
 .markdown-body :deep(h2) {
   font-size: 19px;
   font-weight: 600;
   margin: 18px 0 12px 0;
   padding-left: 10px;
-  border-left: 3px solid #4F46E5;
-  color: #1a202c;
+  border-left: 3px solid var(--accent-color, #4F46E5);
+  color: var(--text-primary, #1a202c);
 }
 .markdown-body :deep(h3), .markdown-body :deep(h4), .markdown-body :deep(h5), .markdown-body :deep(h6) {
   font-size: 16px;
   font-weight: 600;
   margin: 14px 0 10px 0;
-  color: #2d3748;
+  color: var(--text-primary, #2d3748);
 }
 .markdown-body :deep(p) {
   margin: 10px 0;
+  color: var(--text-secondary, #4b5563);
 }
 .markdown-body :deep(ul), .markdown-body :deep(ol) {
   padding-left: 28px;
   margin: 10px 0;
+  color: var(--text-secondary, #4b5563);
 }
 .markdown-body :deep(li) {
   margin: 6px 0;
-}
-.markdown-body :deep(strong) {
-  font-weight: 700;
-  color: #1a202c;
+  color: var(--text-secondary, #4b5563);
 }
 .markdown-body :deep(em) {
   font-style: italic;
