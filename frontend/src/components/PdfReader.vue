@@ -523,7 +523,6 @@ const annotationList = computed(() => {
 
 const renderedPages = ref([])
 const renderedPageNumbers = ref(new Set())
-let observer = null
 
 const loadPdfFromPath = async (path) => {
   try {
@@ -546,8 +545,7 @@ const loadPdfFromPath = async (path) => {
     isLoading.value = false
     
     await nextTick()
-    setupIntersectionObserver()
-    preRenderNeighbors(currentPageNum.value)
+    LazyRender(currentPageNum.value)
   } catch (error) {
     isLoading.value = false
     console.error('PDF 加载失败:', error)
@@ -571,42 +569,24 @@ const initPagePlaceholders = async () => {
   }
 }
 
-const setupIntersectionObserver = () => {
-  if (observer) {
-    observer.disconnect()
-  }
+const LazyRender = async (targetPageNum) => {
+  const rangeStart = Math.max(1, targetPageNum - 2)
+  const rangeEnd = Math.min(totalPages.value, targetPageNum + 2)
   
-  observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const pageNum = parseInt(entry.target.dataset.pageNum)
-          if (pageNum && !renderedPageNumbers.value.has(pageNum)) {
-            renderSinglePage(pageNum)
-            preRenderNeighbors(pageNum)
-          }
-        }
-      })
-    },
-    {
-      root: document.querySelector('.pdf-render-container'),
-      rootMargin: '200px',
-      threshold: 0.1
+  for (let i = rangeStart; i <= rangeEnd; i++) {
+    if (!renderedPageNumbers.value.has(i)) {
+      renderSinglePage(i)
     }
-  )
-  
-  document.querySelectorAll('.page-wrapper').forEach((el) => {
-    observer.observe(el)
-  })
+  }
 }
 
-const preRenderNeighbors = (pageNum) => {
-  const neighbors = [pageNum - 1, pageNum + 1]
-  neighbors.forEach((num) => {
-    if (num >= 1 && num <= totalPages.value && !renderedPageNumbers.value.has(num)) {
-      setTimeout(() => renderSinglePage(num), 100)
-    }
-  })
+let lazyRenderTimer = null
+const scheduleLazyRender = (pageNum) => {
+  if (lazyRenderTimer) return
+  lazyRenderTimer = setTimeout(() => {
+    lazyRenderTimer = null
+    LazyRender(pageNum)
+  }, 80)
 }
 
 const renderAllPages = async () => {
@@ -842,17 +822,36 @@ document.addEventListener('mousedown', (e) => {
 
 const handleScroll = (e) => {
   const container = e.target
-  const containerRect = container.getBoundingClientRect()
-  const pages = document.querySelectorAll('.page-wrapper')
+  if (!container) return
   
-  let currentPage = 1
-  for (let i = 0; i < pages.length; i++) {
-    const pageRect = pages[i].getBoundingClientRect()
-    if (pageRect.top < containerRect.height / 2) {
-      currentPage = i + 1
+  const containerTop = container.scrollTop
+  const containerBottom = containerTop + container.clientHeight
+  
+  let nearestPage = currentPageNum.value
+  let minDist = Infinity
+  
+  const pageEls = document.querySelectorAll('.page-wrapper')
+  for (let i = 0; i < pageEls.length; i++) {
+    const el = pageEls[i]
+    const elTop = el.offsetTop
+    const elBottom = elTop + el.offsetHeight
+    const elCenter = elTop + el.offsetHeight / 2
+    
+    const distToCenter = Math.abs(elCenter - (containerTop + container.clientHeight / 2))
+    if (distToCenter < minDist) {
+      minDist = distToCenter
+      nearestPage = i + 1
+    }
+    
+    if (elBottom > containerTop - 800 && elTop < containerBottom + 800) {
+      const pageNum = i + 1
+      if (!renderedPageNumbers.value.has(pageNum)) {
+        scheduleLazyRender(pageNum)
+      }
     }
   }
-  currentPageNum.value = currentPage
+  
+  currentPageNum.value = nearestPage
 }
 
 const handleCanvasClick = (e) => {

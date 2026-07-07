@@ -161,6 +161,8 @@ import { ref, computed, onMounted, watch } from 'vue'
 import PdfReader from '@/components/PdfReader.vue'
 import CategoryItem from '@/components/CategoryItem.vue'
 
+defineOptions({ name: 'LiteratureView' })
+
 const STORAGE_KEY = 'studymate_literature_list'
 const CATEGORIES_KEY = 'studymate_categories'
 
