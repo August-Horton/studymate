@@ -521,7 +521,6 @@ const annotationList = computed(() => {
   return result
 })
 
-const renderedPages = ref([])
 const renderedPageNumbers = ref(new Set())
 
 const loadPdfFromPath = async (path) => {
