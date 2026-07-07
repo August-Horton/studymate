@@ -211,30 +211,39 @@ const findCategoryById = (id, categoryList = categories.value) => {
 }
 
 const loadLiteratureList = () => {
-  const saved = localStorage.getItem(STORAGE_KEY)
-  if (saved) {
-    try {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
       const savedList = JSON.parse(saved)
-      literatureList.value = savedList.map(item => {
-        if (item.data) {
-          const byteString = atob(item.data.split(',')[1])
-          const mimeType = item.data.split(',')[0].split(':')[1].split(';')[0]
-          const ab = new ArrayBuffer(byteString.length)
-          const ia = new Uint8Array(ab)
-          for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i)
+      if (Array.isArray(savedList)) {
+        literatureList.value = savedList.map(item => {
+          if (item && item.data) {
+            try {
+              const byteString = atob(item.data.split(',')[1])
+              const mimeType = item.data.split(',')[0].split(':')[1].split(';')[0]
+              const ab = new ArrayBuffer(byteString.length)
+              const ia = new Uint8Array(ab)
+              for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i)
+              }
+              const blob = new Blob([ab], { type: mimeType })
+              return {
+                ...item,
+                url: URL.createObjectURL(blob)
+              }
+            } catch (e) {
+              return item
+            }
           }
-          const blob = new Blob([ab], { type: mimeType })
-          return {
-            ...item,
-            url: URL.createObjectURL(blob)
-          }
-        }
-        return item
-      })
-    } catch (e) {
-      literatureList.value = []
+          return item
+        }).filter(Boolean)
+      } else {
+        literatureList.value = []
+      }
     }
+  } catch (e) {
+    console.error('加载文献列表失败:', e)
+    literatureList.value = []
   }
 }
 
@@ -395,14 +404,19 @@ const downloadDocument = (doc) => {
 }
 
 const deleteDocument = (doc) => {
-  if (!confirm(`确定要删除《${doc.name}》吗？`)) return
-  const index = literatureList.value.findIndex(d => d.id === doc.id)
-  if (index !== -1) {
-    literatureList.value.splice(index, 1)
-    if (currentActiveDoc.value?.id === doc.id) {
-      currentActiveDoc.value = null
+  try {
+    if (!doc || !doc.id || !confirm(`确定要删除《${doc.name || '文献'}》吗？`)) return
+    const index = literatureList.value.findIndex(d => d.id === doc.id)
+    if (index !== -1) {
+      literatureList.value.splice(index, 1)
+      if (currentActiveDoc.value && currentActiveDoc.value.id === doc.id) {
+        currentActiveDoc.value = null
+      }
+      saveLiteratureList()
     }
-    saveLiteratureList()
+  } catch (e) {
+    console.error('删除文献失败:', e)
+    alert('删除文献时出现错误，请刷新页面重试')
   }
 }
 
