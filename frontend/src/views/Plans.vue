@@ -1387,9 +1387,9 @@ onMounted(fetchCourses)
 
 <style scoped>
 .plans-page {
-  min-height: 100vh;
+  height: 100%;
   background: var(--van-background-color);
-  padding-bottom: 20px;
+  overflow-y: auto;
 }
 
 .advice-section {

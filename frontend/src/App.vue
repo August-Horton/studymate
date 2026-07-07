@@ -80,7 +80,8 @@ watch(() => route.path, (newPath) => {
 }
 
 #app {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background-color: var(--bg-primary, #f5f5f5);
 }
 
@@ -117,12 +118,20 @@ watch(() => route.path, (newPath) => {
 }
 
 .content {
-  padding-top: 46px;
-  min-height: calc(100vh - 46px);
+  height: calc(100vh - 46px);
+  margin-top: 46px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.content .van-tabs {
+  flex-shrink: 0;
 }
 
 .page-container {
-  padding-bottom: 24px;
+  flex: 1;
+  overflow: hidden;
 }
 
 /* 页面过渡动画 */

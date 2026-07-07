@@ -442,7 +442,7 @@ onMounted(() => {
 
 .literature-view {
   display: flex;
-  height: 100vh;
+  height: 100%;
   width: 100%;
   background-color: var(--bg-primary, #f5f5f5);
   overflow: hidden;
