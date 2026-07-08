@@ -588,6 +588,21 @@ const scheduleLazyRender = (pageNum) => {
   }, 80)
 }
 
+const fixTextLayerRendering = (container) => {
+  const emElements = container.querySelectorAll('em')
+  emElements.forEach(em => {
+    const text = em.textContent
+    if (text.includes('*') || text.includes('^') || text.length <= 3) {
+      const span = document.createElement('span')
+      span.textContent = text
+      span.style.fontStyle = 'normal'
+      span.style.verticalAlign = 'super'
+      span.style.fontSize = '0.75em'
+      em.parentNode.replaceChild(span, em)
+    }
+  })
+}
+
 const renderAllPages = async () => {
   if (!pdfDocInstance) return
   for (let i = 1; i <= totalPages.value; i++) {
@@ -625,6 +640,7 @@ const renderSinglePage = async (num) => {
         textLayerDiv.innerHTML = ''
         textLayerDiv.style.setProperty('--scale-factor', viewport.scale)
         await pdfjsLib.renderTextLayer({ textContentSource: textContent, container: textLayerDiv, viewport, textDivs: [] }).promise
+        fixTextLayerRendering(textLayerDiv)
       } catch (e) {}
     }
     
@@ -1012,6 +1028,7 @@ watch(() => props.pdfPath, (newPath) => {
 :deep(.page-text-layer > span), :deep(.page-text-layer br) { color: transparent !important; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; pointer-events: auto; user-select: text; }
 .page-text-layer ::selection { background: rgba(79, 70, 229, 0.25) !important; color: transparent !important; }
 :deep(.page-text-layer > span)::selection { background: rgba(79, 70, 229, 0.25) !important; color: transparent !important; }
+::deep(.page-text-layer em) { font-style: normal !important; vertical-align: super; font-size: 0.75em; }
 
 .selection-toolbar { position: fixed; z-index: 999999; transform: translate(-50%, 0); background: white; padding: 8px; border-radius: 12px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15); border: 1px solid #e2e8f0; }
 .selection-tools { display: flex; gap: 4px; align-items: center; }
