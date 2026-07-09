@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from database import init_db
 from routers import notes, papers, plans, review, courses, images, literature
 from ai.client import chat_completion
@@ -85,6 +87,22 @@ app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
 app.include_router(plans.router, prefix="/api/plans", tags=["plans"])
 app.include_router(images.router, prefix="/api/images", tags=["images"])
 app.include_router(literature.router, prefix="/api/literature", tags=["literature"])
+
+# 挂载前端静态文件
+dist_path = get_resource_path("dist")
+if os.path.exists(dist_path):
+    app.mount("/assets", StaticFiles(directory=os.path.join(dist_path, "assets")), name="assets")
+    app.mount("/literature", StaticFiles(directory=get_resource_path("literature")), name="literature_files")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # API 路由已被前面的 router 处理，这里只处理前端路由
+        if full_path.startswith("api/"):
+            return {"detail": "Not Found"}
+        index_path = os.path.join(dist_path, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+        return {"detail": "Frontend not built"}
 
 # ---------- AI 速读分析 API ----------
 class ChatRequest(BaseModel):
